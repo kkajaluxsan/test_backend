@@ -1,0 +1,33 @@
+# Compiled output & dependencies
+**/node_modules/
+**/dist/
+**/build/
+**/.gradle/
+**/out/
+**/coverage/
+
+# Installer files
+/DockerDesktopInstaller.exe
+
+# Environment files / sensitive data
+**/.env
+**/.env*.local
+**/*.env
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+
+# IDE files
+**/.idea/
+**/.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+
+# Docker volumes / local data
+**/pgdata/
+**/redisdata/
