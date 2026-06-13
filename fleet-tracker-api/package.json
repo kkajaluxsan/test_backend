@@ -22,7 +22,8 @@
     "migration:generate": "npm run typeorm -- migration:generate -d database/data-source.ts",
     "migration:run": "npm run typeorm -- migration:run -d database/data-source.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d database/data-source.ts",
-    "seed": "ts-node -r tsconfig-paths/register database/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register database/seed.ts",
+    "migration:run:prod": "node ./node_modules/typeorm/cli.js migration:run -d dist/database/data-source.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

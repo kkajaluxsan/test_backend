@@ -18,11 +18,15 @@ RUN npm ci
 COPY src ./src
 COPY database ./database
 
-# Build the NestJS project
+# Build the NestJS app (outputs to dist/src/)
 RUN npm run build
 
-# Verify the build output exists (NestJS outputs to dist/src/ when no rootDir is set)
-RUN ls -la dist/src/ && echo "✅ Build succeeded: dist/src/main.js found" && test -f dist/src/main.js
+# Also compile database/ folder using CommonJS (for production TypeORM CLI)
+RUN npx tsc --project tsconfig.migrate.json
+
+# Verify key build outputs exist
+RUN test -f dist/src/main.js && echo "✅ App build OK" && \
+    test -f dist/database/data-source.js && echo "✅ Migration build OK"
 
 # Stage 2: Production image
 FROM node:20-alpine
@@ -40,10 +44,6 @@ RUN npm ci --only=production
 
 # Copy built application from builder stage
 COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/database ./database
-COPY tsconfig.json ./tsconfig.json
-COPY tsconfig.build.json ./tsconfig.build.json
-COPY nest-cli.json ./nest-cli.json
 
 # Expose port
 EXPOSE 3000
