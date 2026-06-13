@@ -21,8 +21,8 @@ COPY database ./database
 # Build the NestJS project
 RUN npm run build
 
-# Verify the build output exists
-RUN ls -la dist/ && echo "✅ Build succeeded: dist/main.js found" && test -f dist/main.js
+# Verify the build output exists (NestJS outputs to dist/src/ when no rootDir is set)
+RUN ls -la dist/src/ && echo "✅ Build succeeded: dist/src/main.js found" && test -f dist/src/main.js
 
 # Stage 2: Production image
 FROM node:20-alpine
@@ -53,4 +53,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD wget -qO- http://localhost:3000/health || exit 1
 
 # Start the NestJS server
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
