@@ -35,7 +35,13 @@ export class DeliveryRecord {
   @Column({ type: 'integer', name: 'km_reading' })
   kmReading: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, name: 'labour_charges', nullable: true })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    name: 'labour_charges',
+    nullable: true,
+  })
   labourCharges: number | null;
 
   @Column({ type: 'text', nullable: true })

@@ -84,11 +84,21 @@ export class TrackingService implements OnModuleInit, OnModuleDestroy {
       heading: update.heading,
       lastUpdate: update.timestamp,
     };
-    await this.redis.set(`truck:${update.truckId}:position`, JSON.stringify(redisData), 'EX', 60);
+    await this.redis.set(
+      `truck:${update.truckId}:position`,
+      JSON.stringify(redisData),
+      'EX',
+      60,
+    );
     await this.redis.del(`truck:${update.truckId}:active_since`);
 
     if (update.speed < 0.5) {
-      await this.redis.set(`truck:${update.truckId}:last_movement`, update.timestamp, 'EX', 86400);
+      await this.redis.set(
+        `truck:${update.truckId}:last_movement`,
+        update.timestamp,
+        'EX',
+        86400,
+      );
     }
 
     this.fleetGateway.broadcastTruckPosition({
@@ -108,11 +118,15 @@ export class TrackingService implements OnModuleInit, OnModuleDestroy {
     }
 
     if (batch.positions.length > 500) {
-      throw new BadRequestException({ code: 'BATCH_TOO_LARGE', message: 'Maximum 500 records per batch' });
+      throw new BadRequestException({
+        code: 'BATCH_TOO_LARGE',
+        message: 'Maximum 500 records per batch',
+      });
     }
 
     const sortedPositions = [...batch.positions].sort(
-      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
     );
 
     const validPositions: GpsUpdateDto[] = [];
@@ -165,7 +179,12 @@ export class TrackingService implements OnModuleInit, OnModuleDestroy {
       heading: latest.heading,
       lastUpdate: latest.timestamp,
     };
-    await this.redis.set(`truck:${latest.truckId}:position`, JSON.stringify(redisData), 'EX', 60);
+    await this.redis.set(
+      `truck:${latest.truckId}:position`,
+      JSON.stringify(redisData),
+      'EX',
+      60,
+    );
     await this.redis.del(`truck:${latest.truckId}:active_since`);
 
     this.fleetGateway.broadcastTruckPosition({
@@ -182,13 +201,25 @@ export class TrackingService implements OnModuleInit, OnModuleDestroy {
   async seedTruckActiveGrace(truckId: string) {
     const graceSeconds =
       (this.configService.get<number>('OFFLINE_THRESHOLD_MINUTES', 5) + 2) * 60;
-    await this.redis.set(`truck:${truckId}:active_since`, Date.now().toString(), 'EX', graceSeconds);
+    await this.redis.set(
+      `truck:${truckId}:active_since`,
+      Date.now().toString(),
+      'EX',
+      graceSeconds,
+    );
   }
 
-  private async validateDriverGpsAccess(userId: string, truckId: string, tripId: string) {
+  private async validateDriverGpsAccess(
+    userId: string,
+    truckId: string,
+    tripId: string,
+  ) {
     const driver = await this.driverRepository.findOne({ where: { userId } });
     if (!driver) {
-      throw new NotFoundException({ code: 'DRIVER_NOT_FOUND', message: 'Driver not found' });
+      throw new NotFoundException({
+        code: 'DRIVER_NOT_FOUND',
+        message: 'Driver not found',
+      });
     }
 
     if (driver.assignedTruckId !== truckId) {
@@ -207,17 +238,25 @@ export class TrackingService implements OnModuleInit, OnModuleDestroy {
     }
 
     if (trip.status === TripStatus.COMPLETED) {
-      throw new BadRequestException({ code: 'TRIP_COMPLETED', message: 'Trip is already completed' });
+      throw new BadRequestException({
+        code: 'TRIP_COMPLETED',
+        message: 'Trip is already completed',
+      });
     }
   }
 
   private async checkOverspeed(update: GpsUpdateDto) {
-    const overspeedThreshold = this.configService.get<number>('OVERSPEED_THRESHOLD_KMH', 110);
+    const overspeedThreshold = this.configService.get<number>(
+      'OVERSPEED_THRESHOLD_KMH',
+      110,
+    );
     if (update.speed <= overspeedThreshold) {
       return;
     }
 
-    const trip = await this.tripRepository.findOne({ where: { id: update.tripId } });
+    const trip = await this.tripRepository.findOne({
+      where: { id: update.tripId },
+    });
     await this.alertsService.createOverspeedAlert(
       update.truckId,
       trip?.driverId ?? null,
@@ -241,15 +280,23 @@ export class TrackingService implements OnModuleInit, OnModuleDestroy {
 
   private assertTimestampFresh(timestamp: string, maxAgeSeconds: number) {
     if (this.isTimestampOlderThan(timestamp, maxAgeSeconds)) {
-      throw new BadRequestException({ code: 'STALE_TIMESTAMP', message: 'Timestamp is too old' });
+      throw new BadRequestException({
+        code: 'STALE_TIMESTAMP',
+        message: 'Timestamp is too old',
+      });
     }
   }
 
   private async checkForOfflineTrucks() {
-    const thresholdMinutes = this.configService.get<number>('OFFLINE_THRESHOLD_MINUTES', 5);
+    const thresholdMinutes = this.configService.get<number>(
+      'OFFLINE_THRESHOLD_MINUTES',
+      5,
+    );
     const thresholdMs = thresholdMinutes * 60 * 1000;
 
-    const activeTrucks = await this.truckRepository.find({ where: { status: TruckStatus.ACTIVE } });
+    const activeTrucks = await this.truckRepository.find({
+      where: { status: TruckStatus.ACTIVE },
+    });
     for (const truck of activeTrucks) {
       const positionStr = await this.redis.get(`truck:${truck.id}:position`);
       if (!positionStr) {
@@ -263,8 +310,14 @@ export class TrackingService implements OnModuleInit, OnModuleDestroy {
       try {
         const pos = JSON.parse(positionStr);
         const lastUpdate = new Date(pos.lastUpdate || pos.timestamp).getTime();
-        if (!Number.isNaN(lastUpdate) && Date.now() - lastUpdate > thresholdMs) {
-          await this.markTruckOffline(truck.id, pos.lastUpdate || pos.timestamp);
+        if (
+          !Number.isNaN(lastUpdate) &&
+          Date.now() - lastUpdate > thresholdMs
+        ) {
+          await this.markTruckOffline(
+            truck.id,
+            pos.lastUpdate || pos.timestamp,
+          );
         }
       } catch {
         await this.markTruckOffline(truck.id, null);
@@ -277,14 +330,19 @@ export class TrackingService implements OnModuleInit, OnModuleDestroy {
     if (!activeSince) {
       return false;
     }
-    const thresholdMinutes = this.configService.get<number>('OFFLINE_THRESHOLD_MINUTES', 5);
+    const thresholdMinutes = this.configService.get<number>(
+      'OFFLINE_THRESHOLD_MINUTES',
+      5,
+    );
     const thresholdMs = thresholdMinutes * 60 * 1000;
     const startedAt = Number(activeSince);
     return !Number.isNaN(startedAt) && Date.now() - startedAt < thresholdMs;
   }
 
   private async markTruckOffline(truckId: string, lastSeen: string | null) {
-    const truck = await this.truckRepository.findOne({ where: { id: truckId } });
+    const truck = await this.truckRepository.findOne({
+      where: { id: truckId },
+    });
     if (!truck || truck.status !== TruckStatus.ACTIVE) {
       return;
     }

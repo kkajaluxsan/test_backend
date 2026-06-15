@@ -25,7 +25,7 @@ export class ReportsController {
   @ApiOperation({ summary: 'Daily fleet report (ADMIN only)' })
   async daily(@Query() query: DailyReportQueryDto, @Res() res: Response) {
     const data = await this.reportsService.getDailyReport(query);
-    return this.sendReport(res, 'daily-report', query.format, [data as Record<string, unknown>], data);
+    return this.sendReport(res, 'daily-report', query.format, [data], data);
   }
 
   @Get('monthly')
@@ -52,14 +52,20 @@ export class ReportsController {
   @ApiOperation({ summary: 'Fuel consumption report (ADMIN only)' })
   async fuel(@Query() query: FuelReportQueryDto, @Res() res: Response) {
     const data = await this.reportsService.getFuelReport(query);
-    return this.sendReport(res, 'fuel-report', query.format, data.entries as Record<string, unknown>[], data);
+    return this.sendReport(
+      res,
+      'fuel-report',
+      query.format,
+      data.entries,
+      data,
+    );
   }
 
   @Get('trips')
   @ApiOperation({ summary: 'Trips report (ADMIN only)' })
   async trips(@Query() query: TripsReportQueryDto, @Res() res: Response) {
     const data = await this.reportsService.getTripsReport(query);
-    return this.sendReport(res, 'trips-report', query.format, data.trips as Record<string, unknown>[], data);
+    return this.sendReport(res, 'trips-report', query.format, data.trips, data);
   }
 
   private async sendReport(
@@ -72,14 +78,20 @@ export class ReportsController {
     if (format === ReportFormat.PDF) {
       const buffer = await buildPdfBuffer(filename, exportRows);
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}.pdf"`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${filename}.pdf"`,
+      );
       return res.send(buffer);
     }
 
     if (format === ReportFormat.CSV) {
       const buffer = buildCsvBuffer(exportRows);
       res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}.csv"`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${filename}.csv"`,
+      );
       return res.send(buffer);
     }
 

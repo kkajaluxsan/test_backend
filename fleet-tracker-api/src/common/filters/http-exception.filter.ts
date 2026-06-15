@@ -23,10 +23,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse() as any;
-      
+
       if (typeof exceptionResponse === 'object') {
         message = exceptionResponse.message || exceptionResponse;
-        code = exceptionResponse.code || (status === 401 ? 'UNAUTHORIZED' : status === 403 ? 'FORBIDDEN' : status === 400 ? 'BAD_REQUEST' : 'ERROR');
+        code =
+          exceptionResponse.code ||
+          (status === 401
+            ? 'UNAUTHORIZED'
+            : status === 403
+              ? 'FORBIDDEN'
+              : status === 400
+                ? 'BAD_REQUEST'
+                : 'ERROR');
       } else {
         message = exceptionResponse;
       }

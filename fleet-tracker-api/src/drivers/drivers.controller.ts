@@ -1,4 +1,12 @@
-import { Controller, Get, Patch, Post, Body, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Body,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { DriversService } from './drivers.service';
 import { UpdateDriverDto, AssignTruckDto } from './dto/drivers.dto';
@@ -29,7 +37,10 @@ export class DriversController {
   @Get(':id/trips')
   @Roles(UserRole.SUPER_ADMIN, UserRole.FLEET_MANAGER)
   @ApiOperation({ summary: 'Trip history for a driver (ADMIN only)' })
-  async getTrips(@Param('id') id: string, @Query() query: Record<string, unknown>) {
+  async getTrips(
+    @Param('id') id: string,
+    @Query() query: Record<string, unknown>,
+  ) {
     return this.driversService.getTripHistory(id, query);
   }
 
@@ -43,14 +54,20 @@ export class DriversController {
   @Patch(':id')
   @Roles(UserRole.SUPER_ADMIN, UserRole.FLEET_MANAGER)
   @ApiOperation({ summary: 'Update driver (ADMIN only)' })
-  async update(@Param('id') id: string, @Body() updateDriverDto: UpdateDriverDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateDriverDto: UpdateDriverDto,
+  ) {
     return this.driversService.update(id, updateDriverDto);
   }
 
   @Post(':id/assign-truck')
   @Roles(UserRole.SUPER_ADMIN, UserRole.FLEET_MANAGER)
   @ApiOperation({ summary: 'Assign truck to driver (ADMIN only)' })
-  async assignTruck(@Param('id') id: string, @Body() assignTruckDto: AssignTruckDto) {
+  async assignTruck(
+    @Param('id') id: string,
+    @Body() assignTruckDto: AssignTruckDto,
+  ) {
     return this.driversService.assignTruck(id, assignTruckDto);
   }
 }

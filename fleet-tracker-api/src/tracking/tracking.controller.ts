@@ -15,7 +15,10 @@ export class TrackingController {
   @Post('location')
   @Roles(UserRole.DRIVER)
   @ApiOperation({ summary: 'Single GPS update (DRIVER only)' })
-  async processGpsUpdate(@CurrentUser() user: { id: string }, @Body() gpsUpdateDto: GpsUpdateDto) {
+  async processGpsUpdate(
+    @CurrentUser() user: { id: string },
+    @Body() gpsUpdateDto: GpsUpdateDto,
+  ) {
     return this.trackingService.processGpsUpdate(user.id, gpsUpdateDto);
   }
 

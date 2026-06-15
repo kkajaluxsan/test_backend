@@ -18,7 +18,9 @@ import { AuditLog } from '../common/entities/audit-log.entity';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_ACCESS_SECRET')!,
-        signOptions: { expiresIn: configService.get('JWT_ACCESS_EXPIRY', '15m') },
+        signOptions: {
+          expiresIn: configService.get('JWT_ACCESS_EXPIRY', '15m'),
+        },
       }),
     }),
     TypeOrmModule.forFeature([User, Driver, AuditLog]),

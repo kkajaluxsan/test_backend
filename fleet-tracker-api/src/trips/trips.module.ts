@@ -14,7 +14,15 @@ import { TrackingModule } from '../tracking/tracking.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Trip, TripStop, LoadPickup, DeliveryRecord, Truck, Driver, TrackingPosition]),
+    TypeOrmModule.forFeature([
+      Trip,
+      TripStop,
+      LoadPickup,
+      DeliveryRecord,
+      Truck,
+      Driver,
+      TrackingPosition,
+    ]),
     WebsocketModule,
     TrackingModule,
   ],

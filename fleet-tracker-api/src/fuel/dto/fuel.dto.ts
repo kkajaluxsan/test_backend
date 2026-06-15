@@ -1,4 +1,13 @@
-import { IsString, IsNotEmpty, IsNumber, Min, IsEnum, IsUUID, IsDateString, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  Min,
+  IsEnum,
+  IsUUID,
+  IsDateString,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum FuelEntryType {

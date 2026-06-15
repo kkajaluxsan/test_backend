@@ -1,4 +1,9 @@
-import { Injectable, Inject, NotFoundException, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Redis } from 'ioredis';
@@ -65,7 +70,12 @@ export class AlertsService {
     });
   }
 
-  async createIdleAlert(truckId: string, idleMinutes: number, lat?: number, lon?: number) {
+  async createIdleAlert(
+    truckId: string,
+    idleMinutes: number,
+    lat?: number,
+    lon?: number,
+  ) {
     return this.createAlert({
       truckId,
       type: AlertType.IDLE,
@@ -117,7 +127,9 @@ export class AlertsService {
     if (severity) qb.andWhere('alert.severity = :severity', { severity });
     if (truckId) qb.andWhere('alert.truckId = :truckId', { truckId });
     if (typeof resolved === 'boolean') {
-      qb.andWhere(resolved ? 'alert.resolvedAt IS NOT NULL' : 'alert.resolvedAt IS NULL');
+      qb.andWhere(
+        resolved ? 'alert.resolvedAt IS NOT NULL' : 'alert.resolvedAt IS NULL',
+      );
     }
     if (startDate) qb.andWhere('alert.timestamp >= :startDate', { startDate });
     if (endDate) qb.andWhere('alert.timestamp <= :endDate', { endDate });
@@ -135,7 +147,10 @@ export class AlertsService {
   async resolve(id: string, userId: string, ipAddress: string) {
     const alert = await this.alertRepository.findOne({ where: { id } });
     if (!alert) {
-      throw new NotFoundException({ code: 'ALERT_NOT_FOUND', message: 'Alert not found' });
+      throw new NotFoundException({
+        code: 'ALERT_NOT_FOUND',
+        message: 'Alert not found',
+      });
     }
 
     alert.resolvedAt = new Date();
@@ -178,7 +193,10 @@ export class AlertsService {
       return;
     }
 
-    if (alert.severity === AlertSeverity.HIGH || alert.severity === AlertSeverity.MEDIUM) {
+    if (
+      alert.severity === AlertSeverity.HIGH ||
+      alert.severity === AlertSeverity.MEDIUM
+    ) {
       this.fleetGateway.broadcastAlertFired(payload);
       await this.notificationsService.sendFcm(alert);
       return;

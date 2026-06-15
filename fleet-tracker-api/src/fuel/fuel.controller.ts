@@ -1,7 +1,11 @@
 import { Controller, Post, Get, Body, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { FuelService } from './fuel.service';
-import { CreateFuelEntryDto, FuelKpisQueryDto, FuelListQueryDto } from './dto/fuel.dto';
+import {
+  CreateFuelEntryDto,
+  FuelKpisQueryDto,
+  FuelListQueryDto,
+} from './dto/fuel.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole } from '../common/enums';

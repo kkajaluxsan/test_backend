@@ -1,4 +1,13 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, IsBoolean, ValidateIf } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+  IsBoolean,
+  ValidateIf,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UserRole } from '../../common/enums';
 
@@ -19,19 +28,28 @@ export class CreateUserDto {
   @IsNotEmpty()
   role: UserRole;
 
-  @ApiPropertyOptional({ example: 'Marco Rossi', description: 'Required when role is DRIVER' })
+  @ApiPropertyOptional({
+    example: 'Marco Rossi',
+    description: 'Required when role is DRIVER',
+  })
   @ValidateIf((o) => o.role === UserRole.DRIVER)
   @IsString()
   @IsNotEmpty()
   driverName?: string;
 
-  @ApiPropertyOptional({ example: 'AB1234567', description: 'Required when role is DRIVER' })
+  @ApiPropertyOptional({
+    example: 'AB1234567',
+    description: 'Required when role is DRIVER',
+  })
   @ValidateIf((o) => o.role === UserRole.DRIVER)
   @IsString()
   @IsNotEmpty()
   licenseNumber?: string;
 
-  @ApiPropertyOptional({ example: '+39 333 1234567', description: 'Required when role is DRIVER' })
+  @ApiPropertyOptional({
+    example: '+39 333 1234567',
+    description: 'Required when role is DRIVER',
+  })
   @ValidateIf((o) => o.role === UserRole.DRIVER)
   @IsString()
   @IsNotEmpty()

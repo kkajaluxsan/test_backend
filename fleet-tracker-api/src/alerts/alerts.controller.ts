@@ -23,8 +23,13 @@ export class AlertsController {
   @Patch(':id/resolve')
   @Roles(UserRole.SUPER_ADMIN, UserRole.FLEET_MANAGER)
   @ApiOperation({ summary: 'Resolve alert (ADMIN only)' })
-  async resolve(@Param('id') id: string, @CurrentUser() user: any, @Req() request: Request) {
-    const ipAddress = request.ip || request.connection.remoteAddress || 'unknown';
+  async resolve(
+    @Param('id') id: string,
+    @CurrentUser() user: any,
+    @Req() request: Request,
+  ) {
+    const ipAddress =
+      request.ip || request.connection.remoteAddress || 'unknown';
     return this.alertsService.resolve(id, user.id, ipAddress);
   }
 }

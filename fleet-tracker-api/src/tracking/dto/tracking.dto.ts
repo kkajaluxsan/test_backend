@@ -1,4 +1,15 @@
-import { IsNumber, IsNotEmpty, IsDateString, IsOptional, ValidateNested, IsArray, IsString, IsUUID, Min, Max } from 'class-validator';
+import {
+  IsNumber,
+  IsNotEmpty,
+  IsDateString,
+  IsOptional,
+  ValidateNested,
+  IsArray,
+  IsString,
+  IsUUID,
+  Min,
+  Max,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -19,7 +30,7 @@ export class GpsUpdateDto {
   @Max(90)
   lat: number;
 
-  @ApiProperty({ example: 9.1900 })
+  @ApiProperty({ example: 9.19 })
   @IsNumber()
   @Min(-180)
   @Max(180)

@@ -10,10 +10,13 @@ import Redis from 'ioredis';
       provide: 'REDIS_CLIENT',
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const client = new Redis(configService.get<string>('REDIS_URL') || 'redis://localhost:6379', {
-          maxRetriesPerRequest: 1,
-          lazyConnect: true,
-        });
+        const client = new Redis(
+          configService.get<string>('REDIS_URL') || 'redis://localhost:6379',
+          {
+            maxRetriesPerRequest: 1,
+            lazyConnect: true,
+          },
+        );
         client.on('error', () => {
           // Suppress unhandled error events when Redis is unavailable in dev
         });

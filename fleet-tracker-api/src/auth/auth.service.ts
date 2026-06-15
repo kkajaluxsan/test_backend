@@ -23,17 +23,28 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto, ipAddress: string) {
-    const user = await this.userRepository.findOne({ where: { email: loginDto.email } });
+    const user = await this.userRepository.findOne({
+      where: { email: loginDto.email },
+    });
 
     if (!user || !user.isActive) {
       await this.logAudit(null, 'LOGIN_FAILED', ipAddress);
-      throw new UnauthorizedException({ code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' });
+      throw new UnauthorizedException({
+        code: 'INVALID_CREDENTIALS',
+        message: 'Invalid credentials',
+      });
     }
 
-    const isPasswordValid = await bcrypt.compare(loginDto.password, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(
+      loginDto.password,
+      user.passwordHash,
+    );
     if (!isPasswordValid) {
       await this.logAudit(user.id, 'LOGIN_FAILED', ipAddress);
-      throw new UnauthorizedException({ code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' });
+      throw new UnauthorizedException({
+        code: 'INVALID_CREDENTIALS',
+        message: 'Invalid credentials',
+      });
     }
 
     await this.logAudit(user.id, 'LOGIN_SUCCESS', ipAddress);
@@ -41,9 +52,9 @@ export class AuthService {
     let assignedTruckId = null;
     let assignedTruckNumber = null;
     let name = null;
-    
+
     if (user.role === 'DRIVER') {
-      const driver = await this.driverRepository.findOne({ 
+      const driver = await this.driverRepository.findOne({
         where: { userId: user.id },
         relations: { assignedTruck: true },
       });
@@ -105,11 +116,18 @@ export class AuthService {
 
       return { accessToken };
     } catch (e) {
-      throw new UnauthorizedException({ code: 'INVALID_TOKEN', message: 'Invalid or expired refresh token' });
+      throw new UnauthorizedException({
+        code: 'INVALID_TOKEN',
+        message: 'Invalid or expired refresh token',
+      });
     }
   }
 
-  private async logAudit(userId: string | null, action: string, ipAddress: string) {
+  private async logAudit(
+    userId: string | null,
+    action: string,
+    ipAddress: string,
+  ) {
     const auditLog = this.auditLogRepository.create({
       userId,
       action,

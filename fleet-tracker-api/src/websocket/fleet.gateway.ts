@@ -54,9 +54,14 @@ export class FleetGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       client.data.user = payload;
 
-      if (payload.role === UserRole.SUPER_ADMIN || payload.role === UserRole.FLEET_MANAGER) {
+      if (
+        payload.role === UserRole.SUPER_ADMIN ||
+        payload.role === UserRole.FLEET_MANAGER
+      ) {
         client.join('admin');
-        this.logger.log(`Admin ${payload.email} connected and joined 'admin' room`);
+        this.logger.log(
+          `Admin ${payload.email} connected and joined 'admin' room`,
+        );
       } else if (payload.role === UserRole.DRIVER) {
         client.join(`driver:${payload.sub}`);
 
@@ -67,9 +72,13 @@ export class FleetGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
         if (driver?.assignedTruckId) {
           client.join(`truck:${driver.assignedTruckId}`);
-          this.logger.log(`Driver ${payload.email} joined 'driver:${payload.sub}' and 'truck:${driver.assignedTruckId}' rooms`);
+          this.logger.log(
+            `Driver ${payload.email} joined 'driver:${payload.sub}' and 'truck:${driver.assignedTruckId}' rooms`,
+          );
         } else {
-          this.logger.log(`Driver ${payload.email} connected without assigned truck`);
+          this.logger.log(
+            `Driver ${payload.email} connected without assigned truck`,
+          );
         }
       }
     } catch (error) {
@@ -83,23 +92,32 @@ export class FleetGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('GPS_UPDATE')
-  async handleGpsUpdate(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+  async handleGpsUpdate(
+    @MessageBody() data: any,
+    @ConnectedSocket() client: Socket,
+  ) {
     if (data.truckId) {
       client.join(`truck:${data.truckId}`);
     }
-    
+
     const userId = client.data.user?.sub;
     if (!userId) {
-      client.emit('ACK', { messageId: data.messageId, status: 'error', error: 'Unauthorized' });
+      client.emit('ACK', {
+        messageId: data.messageId,
+        status: 'error',
+        error: 'Unauthorized',
+      });
       return;
     }
 
     try {
       await this.trackingService.processGpsUpdate(userId, data);
     } catch (error) {
-      this.logger.error(`Error processing GPS update: ${(error as Error).message}`);
+      this.logger.error(
+        `Error processing GPS update: ${(error as Error).message}`,
+      );
     }
-    
+
     client.emit('ACK', { messageId: data.messageId, status: 'received' });
     return;
   }
@@ -141,7 +159,9 @@ export class FleetGateway implements OnGatewayConnection, OnGatewayDisconnect {
         data.lon,
       );
     } catch (error) {
-      this.logger.error(`Error processing idle alert: ${(error as Error).message}`);
+      this.logger.error(
+        `Error processing idle alert: ${(error as Error).message}`,
+      );
     }
   }
 

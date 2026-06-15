@@ -67,7 +67,9 @@ export class NotificationsService {
 
     if (!projectId || !clientEmail || !privateKey) {
       if (!this.firebaseWarned) {
-        this.logger.warn('Firebase credentials missing. Skipping FCM notifications.');
+        this.logger.warn(
+          'Firebase credentials missing. Skipping FCM notifications.',
+        );
         this.firebaseWarned = true;
       }
       return null;
@@ -92,7 +94,9 @@ export class NotificationsService {
     const token = this.configService.get<string>('TWILIO_AUTH_TOKEN');
     if (!sid || !token) {
       if (!this.twilioWarned) {
-        this.logger.warn('Twilio credentials missing. Skipping SMS notifications.');
+        this.logger.warn(
+          'Twilio credentials missing. Skipping SMS notifications.',
+        );
         this.twilioWarned = true;
       }
       return null;

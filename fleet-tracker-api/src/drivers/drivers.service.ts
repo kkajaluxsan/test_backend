@@ -28,7 +28,10 @@ export class DriversService {
     });
 
     if (!driver) {
-      throw new NotFoundException({ code: 'DRIVER_NOT_FOUND', message: 'Driver profile not found' });
+      throw new NotFoundException({
+        code: 'DRIVER_NOT_FOUND',
+        message: 'Driver profile not found',
+      });
     }
 
     return driver;
@@ -48,7 +51,10 @@ export class DriversService {
     });
 
     if (!driver) {
-      throw new NotFoundException({ code: 'DRIVER_NOT_FOUND', message: 'Driver profile not found' });
+      throw new NotFoundException({
+        code: 'DRIVER_NOT_FOUND',
+        message: 'Driver profile not found',
+      });
     }
 
     return driver;
@@ -62,15 +68,22 @@ export class DriversService {
 
   async assignTruck(id: string, assignTruckDto: AssignTruckDto) {
     const driver = await this.findOne(id);
-    
-    const truck = await this.truckRepository.findOne({ where: { id: assignTruckDto.truckId } });
+
+    const truck = await this.truckRepository.findOne({
+      where: { id: assignTruckDto.truckId },
+    });
     if (!truck) {
-      throw new NotFoundException({ code: 'TRUCK_NOT_FOUND', message: 'Truck not found' });
+      throw new NotFoundException({
+        code: 'TRUCK_NOT_FOUND',
+        message: 'Truck not found',
+      });
     }
 
     // Unassign previous driver if any
     if (truck.assignedDriverId && truck.assignedDriverId !== id) {
-      const prevDriver = await this.driverRepository.findOne({ where: { id: truck.assignedDriverId } });
+      const prevDriver = await this.driverRepository.findOne({
+        where: { id: truck.assignedDriverId },
+      });
       if (prevDriver) {
         prevDriver.assignedTruckId = null;
         await this.driverRepository.save(prevDriver);
@@ -79,7 +92,9 @@ export class DriversService {
 
     // Unassign previous truck if any
     if (driver.assignedTruckId && driver.assignedTruckId !== truck.id) {
-      const prevTruck = await this.truckRepository.findOne({ where: { id: driver.assignedTruckId } });
+      const prevTruck = await this.truckRepository.findOne({
+        where: { id: driver.assignedTruckId },
+      });
       if (prevTruck) {
         prevTruck.assignedDriverId = null;
         await this.truckRepository.save(prevTruck);

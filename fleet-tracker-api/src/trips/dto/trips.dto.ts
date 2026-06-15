@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, IsNumber, IsArray, ValidateNested, IsDateString, Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsArray,
+  ValidateNested,
+  IsDateString,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { StopType } from '../../common/enums';
@@ -48,7 +56,7 @@ class StopDto {
   @IsNumber()
   lat: number;
 
-  @ApiProperty({ example: 9.1900 })
+  @ApiProperty({ example: 9.19 })
   @IsNumber()
   lon: number;
 }
@@ -66,7 +74,7 @@ export class ConfirmLoadDto {
   @IsNumber()
   lat: number;
 
-  @ApiProperty({ example: 9.1900 })
+  @ApiProperty({ example: 9.19 })
   @IsNumber()
   lon: number;
 
@@ -95,7 +103,7 @@ export class CompleteDeliveryDto {
   @Min(0)
   kmReading: number;
 
-  @ApiPropertyOptional({ example: 50.00 })
+  @ApiPropertyOptional({ example: 50.0 })
   @IsNumber()
   @Min(0)
   labourCharges?: number;

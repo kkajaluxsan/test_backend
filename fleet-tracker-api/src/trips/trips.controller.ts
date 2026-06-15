@@ -1,7 +1,21 @@
-import { Controller, Get, Post, Patch, Body, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TripsService } from './trips.service';
-import { StartTripDto, AddStopsDto, ConfirmLoadDto, CompleteDeliveryDto, EndTripDto } from './dto/trips.dto';
+import {
+  StartTripDto,
+  AddStopsDto,
+  ConfirmLoadDto,
+  CompleteDeliveryDto,
+  EndTripDto,
+} from './dto/trips.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole } from '../common/enums';
@@ -15,14 +29,21 @@ export class TripsController {
   @Post()
   @Roles(UserRole.DRIVER)
   @ApiOperation({ summary: 'Start Day (DRIVER only)' })
-  async startTrip(@CurrentUser() user: any, @Body() startTripDto: StartTripDto) {
+  async startTrip(
+    @CurrentUser() user: any,
+    @Body() startTripDto: StartTripDto,
+  ) {
     return this.tripsService.startTrip(user.id, startTripDto);
   }
 
   @Post(':id/stops')
   @Roles(UserRole.DRIVER)
   @ApiOperation({ summary: 'Add planned stops (DRIVER only)' })
-  async addStops(@CurrentUser() user: any, @Param('id') id: string, @Body() addStopsDto: AddStopsDto) {
+  async addStops(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() addStopsDto: AddStopsDto,
+  ) {
     return this.tripsService.addStops(user.id, id, addStopsDto);
   }
 
@@ -47,13 +68,22 @@ export class TripsController {
     @Param('stopId') stopId: string,
     @Body() completeDeliveryDto: CompleteDeliveryDto,
   ) {
-    return this.tripsService.completeDelivery(user.id, id, stopId, completeDeliveryDto);
+    return this.tripsService.completeDelivery(
+      user.id,
+      id,
+      stopId,
+      completeDeliveryDto,
+    );
   }
 
   @Patch(':id/end')
   @Roles(UserRole.DRIVER)
   @ApiOperation({ summary: 'End Day (DRIVER only)' })
-  async endTrip(@CurrentUser() user: any, @Param('id') id: string, @Body() endTripDto: EndTripDto) {
+  async endTrip(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() endTripDto: EndTripDto,
+  ) {
     return this.tripsService.endTrip(user.id, id, endTripDto);
   }
 

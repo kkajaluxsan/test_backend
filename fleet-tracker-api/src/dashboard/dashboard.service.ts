@@ -9,9 +9,11 @@ import { TruckStatus, AlertType, TripStatus } from '../common/enums';
 @Injectable()
 export class DashboardService {
   constructor(
-    @InjectRepository(Truck) private readonly truckRepository: Repository<Truck>,
+    @InjectRepository(Truck)
+    private readonly truckRepository: Repository<Truck>,
     @InjectRepository(Trip) private readonly tripRepository: Repository<Trip>,
-    @InjectRepository(Alert) private readonly alertRepository: Repository<Alert>,
+    @InjectRepository(Alert)
+    private readonly alertRepository: Repository<Alert>,
   ) {}
 
   async getSummary() {
@@ -19,17 +21,20 @@ export class DashboardService {
     const todayStart = new Date(today.toISOString().slice(0, 10));
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    const [totalTrucks, activeTrucks, idleTrucks, offlineTrucks] = await Promise.all([
-      this.truckRepository.count(),
-      this.truckRepository.count({ where: { status: TruckStatus.ACTIVE } }),
-      this.truckRepository.count({ where: { status: TruckStatus.IDLE } }),
-      this.truckRepository.count({ where: { status: TruckStatus.OFFLINE } }),
-    ]);
+    const [totalTrucks, activeTrucks, idleTrucks, offlineTrucks] =
+      await Promise.all([
+        this.truckRepository.count(),
+        this.truckRepository.count({ where: { status: TruckStatus.ACTIVE } }),
+        this.truckRepository.count({ where: { status: TruckStatus.IDLE } }),
+        this.truckRepository.count({ where: { status: TruckStatus.OFFLINE } }),
+      ]);
 
     const todayFleetKm = await this.sumTripKm(todayStart, today);
     const monthFleetKm = await this.sumTripKm(monthStart, today);
 
-    const activeAlerts = await this.alertRepository.count({ where: { resolvedAt: IsNull() } });
+    const activeAlerts = await this.alertRepository.count({
+      where: { resolvedAt: IsNull() },
+    });
     const fuelAlerts = await this.alertRepository.count({
       where: [
         { resolvedAt: IsNull(), type: AlertType.LOW_FUEL },

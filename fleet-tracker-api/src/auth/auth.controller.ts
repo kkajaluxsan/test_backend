@@ -16,7 +16,8 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Successful login' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto, @Req() request: Request) {
-    const ipAddress = request.ip || request.connection.remoteAddress || 'unknown';
+    const ipAddress =
+      request.ip || request.connection.remoteAddress || 'unknown';
     return this.authService.login(loginDto, ipAddress);
   }
 

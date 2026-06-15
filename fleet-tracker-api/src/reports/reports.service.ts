@@ -21,17 +21,28 @@ import {
 export class ReportsService {
   constructor(
     @InjectRepository(Trip) private readonly tripRepository: Repository<Trip>,
-    @InjectRepository(TripStop) private readonly tripStopRepository: Repository<TripStop>,
-    @InjectRepository(DeliveryRecord) private readonly deliveryRepository: Repository<DeliveryRecord>,
-    @InjectRepository(FuelLog) private readonly fuelLogRepository: Repository<FuelLog>,
-    @InjectRepository(AdblueLog) private readonly adblueLogRepository: Repository<AdblueLog>,
-    @InjectRepository(Driver) private readonly driverRepository: Repository<Driver>,
-    @InjectRepository(Truck) private readonly truckRepository: Repository<Truck>,
+    @InjectRepository(TripStop)
+    private readonly tripStopRepository: Repository<TripStop>,
+    @InjectRepository(DeliveryRecord)
+    private readonly deliveryRepository: Repository<DeliveryRecord>,
+    @InjectRepository(FuelLog)
+    private readonly fuelLogRepository: Repository<FuelLog>,
+    @InjectRepository(AdblueLog)
+    private readonly adblueLogRepository: Repository<AdblueLog>,
+    @InjectRepository(Driver)
+    private readonly driverRepository: Repository<Driver>,
+    @InjectRepository(Truck)
+    private readonly truckRepository: Repository<Truck>,
   ) {}
 
   async getDailyReport(query: DailyReportQueryDto) {
     const { start, end } = this.dayBounds(query.date);
-    const trips = await this.getTripsInRange(start, end, query.driverId, query.truckId);
+    const trips = await this.getTripsInRange(
+      start,
+      end,
+      query.driverId,
+      query.truckId,
+    );
 
     if (trips.length === 0) {
       return {
@@ -57,14 +68,18 @@ export class ReportsService {
     let truckNumber: string | null = null;
 
     if (uniqueDriverIds.length === 1) {
-      const driver = await this.driverRepository.findOne({ where: { id: uniqueDriverIds[0] } });
+      const driver = await this.driverRepository.findOne({
+        where: { id: uniqueDriverIds[0] },
+      });
       driverName = driver?.name ?? null;
     } else if (uniqueDriverIds.length > 1) {
       driverName = 'Multiple drivers';
     }
 
     if (uniqueTruckIds.length === 1) {
-      const truck = await this.truckRepository.findOne({ where: { id: uniqueTruckIds[0] } });
+      const truck = await this.truckRepository.findOne({
+        where: { id: uniqueTruckIds[0] },
+      });
       truckNumber = truck?.registrationNumber ?? null;
     } else if (uniqueTruckIds.length > 1) {
       truckNumber = 'Multiple trucks';
@@ -73,7 +88,9 @@ export class ReportsService {
     const totalKm = trips.reduce((sum, t) => sum + Number(t.totalKm || 0), 0);
     const workingHours = trips.reduce((sum, t) => {
       if (!t.endTime) return sum;
-      return sum + (t.endTime.getTime() - t.startTime.getTime()) / (1000 * 60 * 60);
+      return (
+        sum + (t.endTime.getTime() - t.startTime.getTime()) / (1000 * 60 * 60)
+      );
     }, 0);
 
     const deliveryCount = await this.deliveryRepository
@@ -127,7 +144,12 @@ export class ReportsService {
     const start = new Date(year, month - 1, 1);
     const end = new Date(year, month, 0, 23, 59, 59, 999);
 
-    const trips = await this.getTripsInRange(start, end, query.driverId, query.truckId);
+    const trips = await this.getTripsInRange(
+      start,
+      end,
+      query.driverId,
+      query.truckId,
+    );
     const dailyBreakdown = await this.buildDailyBreakdown(trips, start, end);
 
     const summary = dailyBreakdown.reduce(
@@ -155,7 +177,12 @@ export class ReportsService {
   async getCustomReport(query: CustomReportQueryDto) {
     const start = new Date(query.startDate);
     const end = new Date(`${query.endDate}T23:59:59.999Z`);
-    const trips = await this.getTripsInRange(start, end, query.driverId, query.truckId);
+    const trips = await this.getTripsInRange(
+      start,
+      end,
+      query.driverId,
+      query.truckId,
+    );
     const dailyBreakdown = await this.buildDailyBreakdown(trips, start, end);
 
     const summary = dailyBreakdown.reduce(
@@ -219,13 +246,25 @@ export class ReportsService {
       endDate: query.endDate,
       totalLitres,
       totalCost,
-      avgLitresPer100km: totalKm > 0 ? Number(((totalLitres / totalKm) * 100).toFixed(2)) : 0,
+      avgLitresPer100km:
+        totalKm > 0 ? Number(((totalLitres / totalKm) * 100).toFixed(2)) : 0,
       adblueTotal,
       adblueCost,
-      adblueConsumptionRate: totalKm > 0 ? Number(((adblueTotal / totalKm) * 100).toFixed(2)) : 0,
+      adblueConsumptionRate:
+        totalKm > 0 ? Number(((adblueTotal / totalKm) * 100).toFixed(2)) : 0,
       entries: [
-        ...fuelLogs.map((l) => ({ type: 'DIESEL', litres: l.litres, cost: l.totalCost, timestamp: l.timestamp })),
-        ...adblueLogs.map((l) => ({ type: 'ADBLUE', litres: l.litres, cost: l.cost, timestamp: l.timestamp })),
+        ...fuelLogs.map((l) => ({
+          type: 'DIESEL',
+          litres: l.litres,
+          cost: l.totalCost,
+          timestamp: l.timestamp,
+        })),
+        ...adblueLogs.map((l) => ({
+          type: 'ADBLUE',
+          litres: l.litres,
+          cost: l.cost,
+          timestamp: l.timestamp,
+        })),
       ],
     };
   }
@@ -240,14 +279,18 @@ export class ReportsService {
       .leftJoinAndSelect('t.truck', 'truck')
       .where('t.startTime BETWEEN :start AND :end', { start, end });
 
-    if (query.driverId) qb.andWhere('t.driverId = :driverId', { driverId: query.driverId });
-    if (query.status) qb.andWhere('t.status = :status', { status: query.status });
+    if (query.driverId)
+      qb.andWhere('t.driverId = :driverId', { driverId: query.driverId });
+    if (query.status)
+      qb.andWhere('t.status = :status', { status: query.status });
 
     const trips = await qb.orderBy('t.startTime', 'DESC').getMany();
     const result = [];
 
     for (const trip of trips) {
-      const deliveries = await this.deliveryRepository.count({ where: { tripId: trip.id } });
+      const deliveries = await this.deliveryRepository.count({
+        where: { tripId: trip.id },
+      });
       const durationHours = trip.endTime
         ? (trip.endTime.getTime() - trip.startTime.getTime()) / (1000 * 60 * 60)
         : 0;
@@ -274,7 +317,12 @@ export class ReportsService {
     return { start, end };
   }
 
-  private async getTripsInRange(start: Date, end: Date, driverId?: string, truckId?: string) {
+  private async getTripsInRange(
+    start: Date,
+    end: Date,
+    driverId?: string,
+    truckId?: string,
+  ) {
     const qb = this.tripRepository
       .createQueryBuilder('trip')
       .where('trip.startTime BETWEEN :start AND :end', { start, end })
@@ -286,8 +334,15 @@ export class ReportsService {
     return qb.orderBy('trip.startTime', 'ASC').getMany();
   }
 
-  private async buildDailyBreakdown(trips: Trip[], rangeStart: Date, rangeEnd: Date) {
-    const days: Record<string, { km: number; hours: number; deliveries: number; fuelCost: number }> = {};
+  private async buildDailyBreakdown(
+    trips: Trip[],
+    rangeStart: Date,
+    rangeEnd: Date,
+  ) {
+    const days: Record<
+      string,
+      { km: number; hours: number; deliveries: number; fuelCost: number }
+    > = {};
 
     for (const trip of trips) {
       const dateKey = trip.startTime.toISOString().slice(0, 10);
@@ -296,9 +351,13 @@ export class ReportsService {
       }
       days[dateKey].km += Number(trip.totalKm || 0);
       if (trip.endTime) {
-        days[dateKey].hours += (trip.endTime.getTime() - trip.startTime.getTime()) / (1000 * 60 * 60);
+        days[dateKey].hours +=
+          (trip.endTime.getTime() - trip.startTime.getTime()) /
+          (1000 * 60 * 60);
       }
-      days[dateKey].deliveries += await this.deliveryRepository.count({ where: { tripId: trip.id } });
+      days[dateKey].deliveries += await this.deliveryRepository.count({
+        where: { tripId: trip.id },
+      });
 
       const fuelCost = await this.fuelLogRepository
         .createQueryBuilder('f')

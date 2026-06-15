@@ -1,8 +1,21 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { TrucksService } from './trucks.service';
-import { CreateTruckDto, UpdateTruckDto, UpdateTruckStatusDto } from './dto/trucks.dto';
+import {
+  CreateTruckDto,
+  UpdateTruckDto,
+  UpdateTruckStatusDto,
+} from './dto/trucks.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole } from '../common/enums';
@@ -30,7 +43,10 @@ export class TrucksController {
   @Get(':id/trips')
   @Roles(UserRole.SUPER_ADMIN, UserRole.FLEET_MANAGER)
   @ApiOperation({ summary: 'Trip history for a truck (ADMIN only)' })
-  async getTrips(@Param('id') id: string, @Query() query: Record<string, unknown>) {
+  async getTrips(
+    @Param('id') id: string,
+    @Query() query: Record<string, unknown>,
+  ) {
     return this.trucksService.getTripHistory(id, query);
   }
 
@@ -64,14 +80,18 @@ export class TrucksController {
     @CurrentUser() user: any,
     @Req() request: Request,
   ) {
-    const ipAddress = request.ip || request.connection.remoteAddress || 'unknown';
+    const ipAddress =
+      request.ip || request.connection.remoteAddress || 'unknown';
     return this.trucksService.updateStatus(id, dto, user.id, ipAddress);
   }
 
   @Patch(':id')
   @Roles(UserRole.SUPER_ADMIN, UserRole.FLEET_MANAGER)
   @ApiOperation({ summary: 'Update truck (ADMIN only)' })
-  async update(@Param('id') id: string, @Body() updateTruckDto: UpdateTruckDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateTruckDto: UpdateTruckDto,
+  ) {
     return this.trucksService.update(id, updateTruckDto);
   }
 }

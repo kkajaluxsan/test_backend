@@ -1,11 +1,20 @@
-import { Injectable, ConflictException, NotFoundException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  Inject,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Redis } from 'ioredis';
 import { Truck } from './entities/truck.entity';
 import { Driver } from '../drivers/entities/driver.entity';
 import { AuditLog } from '../common/entities/audit-log.entity';
-import { CreateTruckDto, UpdateTruckDto, UpdateTruckStatusDto } from './dto/trucks.dto';
+import {
+  CreateTruckDto,
+  UpdateTruckDto,
+  UpdateTruckStatusDto,
+} from './dto/trucks.dto';
 import { TripsService } from '../trips/trips.service';
 
 @Injectable()
@@ -29,7 +38,10 @@ export class TrucksService {
     });
 
     if (!driver || !driver.assignedTruck) {
-      throw new NotFoundException({ code: 'NO_ASSIGNED_TRUCK', message: 'No truck assigned to this driver' });
+      throw new NotFoundException({
+        code: 'NO_ASSIGNED_TRUCK',
+        message: 'No truck assigned to this driver',
+      });
     }
 
     return driver.assignedTruck;
@@ -49,19 +61,25 @@ export class TrucksService {
     });
 
     if (!truck) {
-      throw new NotFoundException({ code: 'TRUCK_NOT_FOUND', message: 'Truck not found' });
+      throw new NotFoundException({
+        code: 'TRUCK_NOT_FOUND',
+        message: 'Truck not found',
+      });
     }
 
     return truck;
   }
 
   async create(createTruckDto: CreateTruckDto) {
-    const existing = await this.truckRepository.findOne({ 
-      where: { registrationNumber: createTruckDto.registrationNumber } 
+    const existing = await this.truckRepository.findOne({
+      where: { registrationNumber: createTruckDto.registrationNumber },
     });
-    
+
     if (existing) {
-      throw new ConflictException({ code: 'TRUCK_EXISTS', message: 'Truck with this registration already exists' });
+      throw new ConflictException({
+        code: 'TRUCK_EXISTS',
+        message: 'Truck with this registration already exists',
+      });
     }
 
     const truck = this.truckRepository.create(createTruckDto);
@@ -71,12 +89,18 @@ export class TrucksService {
   async update(id: string, updateTruckDto: UpdateTruckDto) {
     const truck = await this.findOne(id);
 
-    if (updateTruckDto.registrationNumber && updateTruckDto.registrationNumber !== truck.registrationNumber) {
-      const existing = await this.truckRepository.findOne({ 
-        where: { registrationNumber: updateTruckDto.registrationNumber } 
+    if (
+      updateTruckDto.registrationNumber &&
+      updateTruckDto.registrationNumber !== truck.registrationNumber
+    ) {
+      const existing = await this.truckRepository.findOne({
+        where: { registrationNumber: updateTruckDto.registrationNumber },
       });
       if (existing) {
-        throw new ConflictException({ code: 'TRUCK_EXISTS', message: 'Truck with this registration already exists' });
+        throw new ConflictException({
+          code: 'TRUCK_EXISTS',
+          message: 'Truck with this registration already exists',
+        });
       }
     }
 
@@ -89,7 +113,12 @@ export class TrucksService {
     return this.tripsService.findByTruck(truckId, query);
   }
 
-  async updateStatus(id: string, dto: UpdateTruckStatusDto, userId: string, ipAddress: string) {
+  async updateStatus(
+    id: string,
+    dto: UpdateTruckStatusDto,
+    userId: string,
+    ipAddress: string,
+  ) {
     const truck = await this.findOne(id);
     truck.status = dto.status;
     const saved = await this.truckRepository.save(truck);
@@ -110,12 +139,12 @@ export class TrucksService {
   async getLivePosition(id: string) {
     // Validate truck exists
     await this.findOne(id);
-    
+
     const positionStr = await this.redis.get(`truck:${id}:position`);
     if (!positionStr) {
       return null;
     }
-    
+
     try {
       const pos = JSON.parse(positionStr);
       return { truckId: id, ...pos };

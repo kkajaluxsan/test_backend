@@ -1,7 +1,10 @@
 import PDFDocument from 'pdfkit';
 import { stringify } from 'csv-stringify/sync';
 
-export function buildPdfBuffer(title: string, rows: Record<string, unknown>[]): Promise<Buffer> {
+export function buildPdfBuffer(
+  title: string,
+  rows: Record<string, unknown>[],
+): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 40 });
     const chunks: Buffer[] = [];

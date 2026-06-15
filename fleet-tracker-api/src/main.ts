@@ -12,9 +12,12 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // CORS
-  const corsOrigins = configService.get<string>('CORS_ORIGIN', 'http://localhost:3001');
+  const corsOrigins = configService.get<string>(
+    'CORS_ORIGIN',
+    'http://localhost:3001',
+  );
   app.enableCors({
-    origin: corsOrigins.split(','),
+    origin: corsOrigins.split(',').map((origin) => origin.trim()),
     credentials: true,
   });
 
